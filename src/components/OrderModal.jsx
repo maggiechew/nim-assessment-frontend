@@ -1,13 +1,45 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import styles from "./styles/OrderModal.module.css";
 
 function OrderModal({ order, setOrderModal }) {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [error, setError] = useState([]);
   const [submitted, setSubmitted] = useState(false);
 
   const placeOrder = async () => {
+    const formatPhone = (numbers) => {
+      const areaCode = numbers[0].concat(numbers[1], numbers[2]);
+      const telPrefix = numbers[3].concat(numbers[4], numbers[5]);
+      const lineNumber = numbers[6].concat(numbers[7], numbers[8], numbers[9]);
+      return `(${areaCode}) ${telPrefix}-${lineNumber}`;
+    };
+
+    const phoneLength = phone.replace(/\D+/g, "").length;
+
+    setError([]);
+    const errorProperties = {
+      name,
+      phone,
+      address,
+      phoneLength
+    };
+    const errorList = [];
+    if (!errorProperties.name) errorList.push("name");
+    if (!errorProperties.phone) errorList.push("noPhone");
+    if (!errorProperties.address) errorList.push("address");
+    if (errorProperties.phoneLength < 10) errorList.push("phoneLength");
+    setError(errorList);
+
+    if (errorList.length > 0) {
+      return;
+    }
+
+    setSubmitted(true);
+    const formattedPhone = formatPhone(phone.toString());
     const response = await fetch("/api/orders", {
       method: "POST",
       headers: {
@@ -15,7 +47,7 @@ function OrderModal({ order, setOrderModal }) {
       },
       body: JSON.stringify({
         name,
-        phone,
+        phone: formattedPhone,
         address,
         items: order
       })
@@ -27,6 +59,17 @@ function OrderModal({ order, setOrderModal }) {
     }
     setSubmitted("error");
   };
+
+  const addressLabel = error.includes("address")
+    ? "Address: don't forget me!"
+    : "Address";
+  let phoneLabel;
+  if (error.includes("noPhone")) {
+    phoneLabel = "Phone: don't forget me!";
+  } else if (error.includes("phoneLength")) {
+    phoneLabel = "Phone: your number must be at least 10 digits";
+  } else phoneLabel = "Phone";
+  const nameLabel = error.includes("name") ? "Name: don't forget me!" : "Name";
   return (
     <>
       <div
@@ -46,8 +89,9 @@ function OrderModal({ order, setOrderModal }) {
         <form className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="name">
-              Name
+              {nameLabel}
               <input
+                required
                 onChange={(e) => {
                   e.preventDefault();
                   setName(e.target.value);
@@ -59,7 +103,7 @@ function OrderModal({ order, setOrderModal }) {
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="phone">
-              Phone
+              {phoneLabel}
               <input
                 onChange={(e) => {
                   e.preventDefault();
@@ -72,7 +116,7 @@ function OrderModal({ order, setOrderModal }) {
           </div>
           <div className={styles.formGroup}>
             <label htmlFor="address">
-              Address
+              {addressLabel}
               <input
                 onChange={(e) => {
                   e.preventDefault();
@@ -84,6 +128,15 @@ function OrderModal({ order, setOrderModal }) {
             </label>
           </div>
         </form>
+        <div
+          id={
+            error.length > 0
+              ? styles.error_message_displayed
+              : styles.message_hidden
+          }
+        >
+          <p>Please fill out all the fields!</p>
+        </div>
 
         <div
           id={
@@ -112,6 +165,7 @@ function OrderModal({ order, setOrderModal }) {
             Close
           </button>
           <button
+            type="submit"
             onClick={() => {
               placeOrder();
             }}
