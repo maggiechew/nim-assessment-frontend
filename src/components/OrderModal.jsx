@@ -20,7 +20,10 @@ function OrderModal({ order, setOrderModal }) {
       })
     });
     const data = await response.json();
-    console.log(data);
+    const orderId = await data.id;
+    if (response.ok) {
+      navigate(`/order-confirmation/${orderId}`);
+    }
   };
   return (
     <>
