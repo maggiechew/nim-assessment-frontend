@@ -5,6 +5,7 @@ function OrderModal({ order, setOrderModal }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const placeOrder = async () => {
     const response = await fetch("/api/orders", {
@@ -24,6 +25,7 @@ function OrderModal({ order, setOrderModal }) {
     if (response.ok) {
       navigate(`/order-confirmation/${orderId}`);
     }
+    setSubmitted("error");
   };
   return (
     <>
@@ -83,6 +85,25 @@ function OrderModal({ order, setOrderModal }) {
           </div>
         </form>
 
+        <div
+          id={
+            submitted === "error"
+              ? styles.error_message_displayed
+              : styles.message_hidden
+          }
+        >
+          <p>There was an issue submitting your order. Please try again.</p>
+        </div>
+        <div
+          id={
+            submitted && submitted !== "error"
+              ? styles.inProgress
+              : styles.message_hidden
+          }
+        >
+          <h2>Your order is being processed</h2>
+        </div>
+        <br />
         <div className={styles.orderModalButtons}>
           <button
             className={styles.orderModalClose}
