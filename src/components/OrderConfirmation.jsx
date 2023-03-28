@@ -2,7 +2,6 @@ import React from "react";
 import styles from "./styles/OrderConfirmation.module.css";
 
 function OrderConfirmation({ order, status: orderStatus }) {
-
   if (orderStatus !== 500) {
     const { id, name, address, status } = order;
     const { items } = order;
@@ -58,11 +57,7 @@ function OrderConfirmation({ order, status: orderStatus }) {
               <b>Order Status:</b> {status}
             </p>
             <br />
-            <ul>
-              {/* <div> */}
-              {listItems}
-              {/* </div> */}
-            </ul>
+            <ul>{listItems}</ul>
           </div>
           <div> Your Subtotal is: ${fixedSubTotal}</div>
           <div> Tax: ${fixedTax}</div>
@@ -71,7 +66,6 @@ function OrderConfirmation({ order, status: orderStatus }) {
             <h3>Your Total: ${fixedTotal}</h3>
           </div>
         </div>
-        {/* <NavigationButton /> */}
       </div>
     );
   }

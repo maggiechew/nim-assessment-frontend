@@ -22,8 +22,13 @@ function ConfirmationPage() {
 
   return (
     <div>
-    {!order && <div className={styles.container}><h2>Fetching Order information...</h2></div>}
-    {order && <OrderConfirmation order={order} status={status} />}</div>
+      {!order && (
+        <div className={styles.container}>
+          <h2>Fetching Order information...</h2>
+        </div>
+      )}
+      {order && <OrderConfirmation order={order} status={status} />}
+    </div>
   );
 }
 
